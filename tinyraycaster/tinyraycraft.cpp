@@ -8,32 +8,38 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-uint32_t pack_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a=255) {
+uint32_t pack_color(const uint8_t r, const uint8_t g, const uint8_t b, 
+		    const uint8_t a=255) {
     return (a << 24) + (b << 16) + (g << 8) + r;
 }
 
-void unpack_color(const uint32_t &color, uint8_t &r, uint8_t &g, uint8_t &b, uint8_t &a) {
+void unpack_color(const uint32_t &color, uint8_t &r, uint8_t &g, uint8_t &b, 
+		  uint8_t &a) {
     r = (color >> 0) & 255;
     g = (color >> 8) & 255;
     b = (color >> 16) & 255;
     a = (color >> 24) & 255;
 }
 
-void drop_ppm_image(const std::string filename, const std::vector<uint32_t> &image, const size_t w, const size_t h) {
+void drop_ppm_image(const std::string filename, 
+		    const std::vector<uint32_t> &image, 
+		    const size_t w, const size_t h) {
     assert(image.size() == w * h);
     std::ofstream ofs(filename, std::ios::binary);
     ofs << "P6\n" << w << " " << h << "\n255\n";
     for (size_t i = 0; i < h * w; i++) {
         uint8_t r, g, b, a;
         unpack_color(image[i], r, g, b, a);
-        ofs << static_cast<char>(r) << static_cast<char>(g) << static_cast<char>(b);
+        ofs << static_cast<char>(r) << static_cast<char>(g);
+	ofs << static_cast<char>(b);
     }
     ofs.close();
 }
 
-void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, const size_t img_h, 
-                    const size_t rect_w, const size_t rect_h, const size_t rect_x, const size_t rect_y, 
-                    const uint32_t color) {
+void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, 
+		    const size_t img_h, const size_t rect_w, 
+		    const size_t rect_h, const size_t rect_x, 
+		    const size_t rect_y, const uint32_t color) {
     assert(img.size() == img_w * img_h);
     for (size_t i = 0; i < rect_h; i++) {
         for (size_t j = 0; j < rect_w; j++){
@@ -45,7 +51,8 @@ void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, const size_t
     }
 }
 
-bool load_texture(const std::string filename, std::vector<uint32_t> &texture, size_t &text_size, size_t &text_cnt) {
+bool load_texture(const std::string filename, std::vector<uint32_t> &texture, 
+		  size_t &text_size, size_t &text_cnt) {
     int nchannels = -1, w, h;
     unsigned char *pixmap = stbi_load(filename.c_str(), &w, &h, &nchannels, 0);
     if (!pixmap) {
@@ -125,7 +132,8 @@ int main() {
             size_t rect_y = i * rect_h;
             size_t texid = map[i * map_w + j] - '0';
             assert(texid < walltext_cnt);
-            draw_rectangle(framebuffer, win_w, win_h, rect_w, rect_h, rect_x, rect_y, walltext[texid * walltext_size]);
+            draw_rectangle(framebuffer, win_w, win_h, rect_w, rect_h, 
+			   rect_x, rect_y, walltext[texid * walltext_size]);
         }
     }
 
@@ -149,7 +157,8 @@ int main() {
                 assert(texid < walltext_cnt);
                 size_t rect_x = win_w / 2 + i;
                 size_t rect_y = (win_h - column_height) / 2;
-                draw_rectangle(framebuffer, win_w, win_h, 1, column_height, rect_x, rect_y, walltext[texid * walltext_cnt]);
+                draw_rectangle(framebuffer, win_w, win_h, 1, column_height, 
+			       rect_x, rect_y, walltext[texid * walltext_cnt]);
                 break;
             }
         }
